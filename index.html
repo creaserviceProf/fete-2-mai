@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organisation Repas & Boissons — 2 mai</title>
+    <!-- Utilisation de polices chaleureuses et modernes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <header class="hero">
+        <div class="container hero-content">
+            <h1>Organisation Repas & Boissons</h1>
+            <p class="subtitle">La grande fête du 2 Mai ! 🌿🍽️🥂</p>
+            <p class="intro">On s'organise tous ensemble pour passer une journée mémorable. Inscrivez ce que vous prévoyez d'apporter en nourriture et en boissons.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        
+        <!-- Barre de filtres et d'actions -->
+        <section class="toolbar card">
+            <div class="search-filters">
+                <input type="text" id="searchInput" placeholder="Rechercher un participant...">
+                <select id="filterPresence">
+                    <option value="all">Toutes présences</option>
+                    <option value="oui">Confirmés</option>
+                    <option value="attente">En attente</option>
+                    <option value="non">Absents</option>
+                </select>
+                <select id="filterFood">
+                    <option value="all">Toutes catégories nourriture</option>
+                    <!-- Rempli dynamiquement -->
+                </select>
+            </div>
+            <div class="actions">
+                <button id="addBtn" class="btn primary">✨ Ajouter un participant</button>
+            </div>
+        </section>
+
+        <!-- Vue Mobile (Cartes) et Desktop (Tableau) -->
+        <section class="participants-section card">
+            <div class="table-responsive">
+                <table id="participantsTable">
+                    <thead>
+                        <tr>
+                            <th>Participant</th>
+                            <th>Présence</th>
+                            <th>Nourriture apportée</th>
+                            <th>Boissons apportées</th>
+                            <th>Commentaire</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="participantsBody">
+                        <!-- Rempli par le script -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="empty-state" id="emptyState" style="display: none;">
+                Aucun participant trouvé avec ces critères.
+            </div>
+        </section>
+
+        <!-- Statistiques et Suggestions -->
+        <section class="dashboard">
+            <div class="summary-card stat-presence">
+                <h3>👥 Statistiques de Présence</h3>
+                <div class="stat-counts">
+                    <div class="stat-item">
+                        <span class="stat-value" id="statTotalPersons">0</span>
+                        <span class="stat-label">Personnes attendues<br><small>(incl. accompagnants)</small></span>
+                    </div>
+                    <div class="stat-details">
+                        <p><span class="dot dot-oui"></span> Confirmés : <strong id="statConfirmes">0</strong></p>
+                        <p><span class="dot dot-attente"></span> En attente : <strong id="statAttente">0</strong></p>
+                        <p><span class="dot dot-non"></span> Absents : <strong id="statAbsents">0</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-card food-drinks-summary">
+                <h3>🍽️ Récapitulatif Nourriture</h3>
+                <div id="foodSummaryList" class="summary-grid">
+                    <!-- Rempli dynamiquement -->
+                </div>
+            </div>
+
+            <div class="summary-card food-drinks-summary">
+                <h3>🥂 Récapitulatif Boissons</h3>
+                <div id="drinksSummaryList" class="summary-grid">
+                    <!-- Rempli dynamiquement -->
+                </div>
+            </div>
+
+            <div class="summary-card warnings" id="alertsSection">
+                <h3>⚠️ Manques et Suggestions</h3>
+                <ul id="alertsList" class="alerts-list">
+                    <!-- Rempli dynamiquement -->
+                </ul>
+            </div>
+        </section>
+
+        <section class="bottom-actions card text-center">
+            <p class="export-text">Partager les données avec les organisateurs ou nettoyer la base.</p>
+            <div class="action-buttons">
+                <button id="copyBtn" class="btn secondary">📋 Copier le résumé</button>
+                <button id="exportCsvBtn" class="btn secondary">💾 Exporter en CSV</button>
+                <button id="resetBtn" class="btn danger outline">🗑️ Réinitialiser tout</button>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Créé pour la fête du 2 Mai • Option de synchronisation : <span id="syncStatus">LocalStorage (Local)</span></p>
+    </footer>
+
+    <!-- Modale d'ajout / modification -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal card">
+            <div class="modal-header">
+                <h2 id="modalTitle">Ajouter un participant</h2>
+                <button id="closeModalBtn" class="btn-icon">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="participantForm">
+                    <input type="hidden" id="partId">
+                    
+                    <div class="form-row">
+                        <div class="form-group flex-2">
+                            <label for="partName">Nom / Prénom <span class="required">*</span></label>
+                            <input type="text" id="partName" required>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="partPresence">Présence</label>
+                            <select id="partPresence">
+                                <option value="oui">Oui</option>
+                                <option value="attente">En attente</option>
+                                <option value="non">Non</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row guests-row" id="guestsRow">
+                        <div class="form-group flex-1">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="partAccompagne">
+                                Vient accompagné(e)
+                            </label>
+                        </div>
+                        <div class="form-group flex-1" id="guestsCountGroup" style="display: none;">
+                            <label for="partGuests">Nombre d'accompagnants (en plus)</label>
+                            <input type="number" id="partGuests" min="1" value="1">
+                        </div>
+                    </div>
+
+                    <fieldset id="contributionsFieldset">
+                        <legend>Ce que vous apportez</legend>
+                        
+                        <div class="contribution-section">
+                            <h4>🍽️ Nourriture</h4>
+                            <div id="foodItemsContainer">
+                                <!-- Lignes injectées ici -->
+                            </div>
+                            <button type="button" class="btn secondary btn-small" id="addFoodBtn" style="margin-top: 8px;">+ Ajouter un plat</button>
+                        </div>
+
+                        <div class="contribution-section">
+                            <h4>🥂 Boissons</h4>
+                            <div id="drinkItemsContainer">
+                                <!-- Lignes injectées ici -->
+                            </div>
+                            <button type="button" class="btn secondary btn-small" id="addDrinkBtn" style="margin-top: 8px;">+ Ajouter une boisson</button>
+                        </div>
+                    </fieldset>
+
+                    <div class="form-group">
+                        <label for="partComment">Commentaire libre</label>
+                        <textarea id="partComment" rows="2" placeholder="Des allergies ? Une demande spéciale ?"></textarea>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cancelBtn" class="btn secondary">Annuler</button>
+                <button type="submit" form="participantForm" class="btn primary">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/storage-local.js"></script>
+    <script src="js/storage-firebase.js"></script>
+    <script src="js/store.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
