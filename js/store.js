@@ -3,7 +3,7 @@
 window.APP_CONFIG = {
     // Choisir 'local' pour GitHub Pages / Utilisation Personnelle
     // Choisir 'firebase' pour une vraie collaboration multi-device
-    syncMode: 'local' 
+    syncMode: 'firebase' 
 };
 
 window.API = {
