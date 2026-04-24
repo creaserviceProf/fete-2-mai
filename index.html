@@ -43,7 +43,7 @@
 
         <!-- Vue Mobile (Cartes) et Desktop (Tableau) -->
         <section class="participants-section card">
-            <div class="table-responsive">
+            <div class="table-responsive desktop-only">
                 <table id="participantsTable">
                     <thead>
                         <tr>
@@ -60,6 +60,12 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Conteneur pour les cartes mobiles -->
+            <div id="participantsCards" class="mobile-only">
+                <!-- Rempli par le script -->
+            </div>
+
             <div class="empty-state" id="emptyState" style="display: none;">
                 Aucun participant trouvé avec ces critères.
             </div>

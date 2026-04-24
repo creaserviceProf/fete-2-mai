@@ -69,10 +69,12 @@ function renderAll() {
 
 function renderTable() {
     const tbody = document.getElementById("participantsBody");
+    const cardsContainer = document.getElementById("participantsCards");
     const emptyState = document.getElementById("emptyState");
     const tableEl = document.getElementById("participantsTable");
     
     tbody.innerHTML = "";
+    if (cardsContainer) cardsContainer.innerHTML = "";
 
     const filtered = state.participants.filter(p => {
         const matchName = p.name.toLowerCase().includes(state.filterName.toLowerCase());
@@ -92,9 +94,11 @@ function renderTable() {
 
     if (filtered.length === 0) {
         tableEl.style.display = "none";
+        if (cardsContainer) cardsContainer.style.display = "none";
         emptyState.style.display = "block";
     } else {
-        tableEl.style.display = "table";
+        tableEl.style.display = ""; // Laisse le CSS gérer (desktop-only)
+        if (cardsContainer) cardsContainer.style.display = ""; // Laisse le CSS gérer (mobile-only)
         emptyState.style.display = "none";
 
         filtered.forEach(p => {
@@ -102,6 +106,7 @@ function renderTable() {
 
             let presenceLabel = p.presence === 'oui' ? 'Confirmé' : (p.presence === 'non' ? 'Absent' : 'En attente');
             let guestsText = p.accompagne ? `<br><small class="text-muted">+${p.guestsCount} acc.</small>` : '';
+            let guestsTextMobile = p.accompagne ? ` <span class="text-muted">(+${p.guestsCount} acc.)</span>` : '';
 
             // Nourriture
             let foodHtml = `<span class="text-muted">Rien / Non précisé</span>`;
@@ -139,6 +144,41 @@ function renderTable() {
                 </td>
             `;
             tbody.appendChild(tr);
+
+            // Création de la carte mobile
+            if (cardsContainer) {
+                const card = document.createElement("div");
+                card.className = "participant-card";
+                
+                let commentHtml = p.comment ? `<div class="p-card-comment"><small>💬 ${p.comment}</small></div>` : '';
+
+                card.innerHTML = `
+                    <div class="p-card-header">
+                        <div class="p-card-title">
+                            <strong>${p.name}</strong>${guestsTextMobile}
+                        </div>
+                        <span class="badge ${p.presence}">${presenceLabel}</span>
+                    </div>
+                    
+                    <div class="p-card-body">
+                        <div class="p-card-section">
+                            <strong>🍽️ Nourriture</strong>
+                            <div class="p-card-items">${foodHtml}</div>
+                        </div>
+                        <div class="p-card-section">
+                            <strong>🥂 Boissons</strong>
+                            <div class="p-card-items">${drinkHtml}</div>
+                        </div>
+                        ${commentHtml}
+                    </div>
+
+                    <div class="p-card-actions">
+                        <button class="btn secondary p-card-btn" onclick="editParticipant('${p.id}')">✏️ Modifier</button>
+                        <button class="btn secondary p-card-btn danger-text" onclick="deleteParticipant('${p.id}')">🗑️ Supprimer</button>
+                    </div>
+                `;
+                cardsContainer.appendChild(card);
+            }
         });
     }
 }
