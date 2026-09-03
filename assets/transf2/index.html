@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CartoMili 3D V1</title>
+    <!-- Mapbox GL JS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+
+    <!-- Three.js Import Map -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <div id="map-overlay"
+        style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 5px 10px; border-radius: 4px; font-family: monospace; font-size: 12px; pointer-events: none; z-index: 10;">
+        Zoom: <span id="val-zoom">0.00</span>
+    </div>
+
+    <!-- Header -->
+    <header class="ui-header">
+        <div class="logo">CartoMili 3D</div>
+
+        <!-- Recherche Géocodeur -->
+        <div class="header-search">
+            <input type="text" id="geocoder-input" class="geocoder-input"
+                placeholder="Rechercher un lieu ou une adresse...">
+            <button id="btn-geocoder" class="btn btn-primary">🔍</button>
+        </div>
+        
+        <button id="btn-globe-toggle" class="btn" title="Passer en mode Globe">Globe: OFF</button>
+
+        <!-- Sélecteur de style de carte -->
+        <div class="header-style-switcher">
+            <button id="btn-toggle-dots" class="btn-icon" title="Afficher/Masquer les points" style="margin-right: 15px; font-size: 1.2rem;">👁️</button>
+            <span class="style-label">Style :</span>
+            <button id="style-default" class="btn style-btn active"
+                data-style="mapbox://styles/kikistef/cm6f5p5a600b801qx7s6cctkq" title="Satellite 3D">🛰️</button>
+            <button id="style-topo" class="btn style-btn"
+                data-style="mapbox://styles/kikistef/cmolgjvlk001s01sahwh15rh4" title="Topographique">🗺️</button>
+            <button id="style-tactical" class="btn style-btn"
+                data-style="mapbox://styles/kikistef/cl63eh1px001c14p54ao2sfst" title="Tactique">⬛</button>
+        </div>
+
+        <div class="header-controls">
+            <span id="mode-indicator" class="badge">Mode: Idle</span>
+            <button id="btn-terrain" class="btn">Terrain 3D: OFF</button>
+            <button id="btn-save" class="btn">Sauvegarder</button>
+            <button id="btn-load" class="btn">Charger</button>
+            <input type="file" id="file-input" accept=".json" style="display: none;">
+            <button id="btn-reset" class="btn btn-danger">Réinitialiser</button>
+        </div>
+    </header>
+
+    <!-- Toggle Catalog Buttons -->
+    <div
+        style="position: absolute; top: 60px; left: 10px; display: flex; flex-direction: column; gap: 10px; z-index: 10;">
+        <button id="btn-toggle-catalog" class="btn-floating panel-friend-btn" style="position: static;"
+            title="Catalogue Amis">😀</button>
+        <button id="btn-toggle-catalog-enemy" class="btn-floating panel-enemy-btn" style="position: static;"
+            title="Catalogue Ennemis">💀</button>
+    </div>
+
+    <!-- Catalog Panel Amis -->
+    <aside id="panel-catalog" class="ui-panel left panel-friend open">
+        <div class="panel-header">
+            <h3>Catalogue Amis</h3>
+            <div class="header-actions">
+                <button class="btn-icon btn-minimize">_</button>
+            </div>
+        </div>
+        <div class="panel-content">
+            <ul id="vehicle-list" class="vehicle-list">
+                <!-- Injected via JS -->
+            </ul>
+        </div>
+        <div class="panel-footer">
+            <button id="btn-add-vehicle" class="btn btn-primary btn-full" disabled>Activer Placement</button>
+        </div>
+    </aside>
+
+    <!-- Catalog Panel Ennemis -->
+    <aside id="panel-catalog-enemy" class="ui-panel left panel-enemy hidden">
+        <div class="panel-header">
+            <h3>Catalogue Ennemis</h3>
+            <div class="header-actions">
+                <button class="btn-icon btn-minimize">_</button>
+            </div>
+        </div>
+        <div class="panel-content">
+            <ul id="enemy-vehicle-list" class="vehicle-list">
+                <!-- Injected via JS -->
+            </ul>
+        </div>
+        <div class="panel-footer">
+            <button id="btn-add-vehicle-enemy" class="btn btn-danger btn-full" disabled>Activer Placement</button>
+        </div>
+    </aside>
+
+    <!-- Properties / Editor Panel -->
+    <aside id="panel-editor" class="ui-panel right hidden">
+        <div class="panel-header">
+            <h3>Édition Multi-Véhicules</h3>
+            <div class="header-actions">
+                <button class="btn-icon btn-minimize">_</button>
+                <button id="btn-close-editor" class="btn-icon">×</button>
+            </div>
+        </div>
+        <div class="panel-content" id="editor-container">
+            <!-- Cards will be injected here via JS -->
+        </div>
+    </aside>
+
+    <!-- Overlay UI for prompts -->
+    <div id="ui-overlay" class="overlay hidden">
+        <div class="modal">
+            <h3>Token Mapbox Requis</h3>
+            <p>Veuillez entrer un token Mapbox valide (pk...).</p>
+            <input type="text" id="input-mapbox-token" placeholder="pk.eyJ1...">
+            <button id="btn-submit-token" class="btn btn-primary">Valider</button>
+        </div>
+    </div>
+
+    <!-- App Entry Point -->
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
